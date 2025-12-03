@@ -104,27 +104,21 @@ export const RatingController = {
             if (ratingId) {
                 const rating = await Rating.findById(ratingId)
                     .populate("user", "_id firstName lastName email profile")
-                    .populate("service", "_id name cover");
+                    .populate("service", "_id name cover description");
 
                 if (!rating) return res.status(404).json({ success: false, message: "Rating not found" });
 
                 return res.status(200).json({ success: true, rating });
             }
 
-            // -------------------------
-            // 2. Build dynamic filter
-            // -------------------------
             const filter: any = {};
 
             if (user) filter.user = user;
             if (service) filter.service = service;
 
-            // -------------------------
-            // 3. Fetch ratings based on filters
-            // -------------------------
             const ratings = await Rating.find(filter)
                 .populate("user", "_id firstName lastName email profile")
-                .populate("service", "_id name cover")
+                .populate("service", "_id name cover description")
                 .sort({ createdAt: -1 });
 
             return res.status(200).json({

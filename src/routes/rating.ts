@@ -8,9 +8,11 @@ const router = Router()
 
 router.route('/')
     .post(IsAuth.users, validate(RatingValidation.createRating), RatingController.createRating)
+    .get(IsAuth.everyone, RatingController.getRating)
 
 router.route('/:ratingId')
     .patch(IsAuth.users, validate(RatingValidation.updateRating), RatingController.updateRating)
     .delete(IsAuth.users, RatingController.deleteRating)
-    .get(IsAuth.everyone , RatingController.getRating)
+    .get(IsAuth.everyone, RatingController.getRating)
+    
 export default router

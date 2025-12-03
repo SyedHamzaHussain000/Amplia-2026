@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
+import { ICategory } from "./category";
 
 export interface IPlan extends Document {
     name: string;
@@ -8,7 +9,7 @@ export interface IPlan extends Document {
 
 export interface IService extends Document {
     name: string;
-    category: mongoose.Types.ObjectId;
+    category: mongoose.Types.ObjectId | ICategory;
     description?: string;
     cover?: string;
     plans: IPlan[];

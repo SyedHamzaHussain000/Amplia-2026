@@ -22,5 +22,4 @@ UserSchema.pre<Query<IUser & { isDeleted: boolean; deletedAt?: Date }, IUser>>(/
     next();
 });
 
-
 export const User = mongoose.model<IUser>("User", UserSchema);

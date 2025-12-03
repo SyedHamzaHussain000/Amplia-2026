@@ -7,6 +7,8 @@ import subAdminRouter from "./routes/subAdmin"
 import categoryRouter from "./routes/category"
 import serviceRouter from "./routes/service"
 import ratingRouter from "./routes/rating"
+import boookingRouter from "./routes/booking"
+import fileRouter from "./routes/file"
 import path from "path";
 
 const app: Application = express();
@@ -23,5 +25,7 @@ app.use('/subAdmin', subAdminRouter)
 app.use('/category', categoryRouter)
 app.use('/service', serviceRouter)
 app.use('/rating', ratingRouter)
+app.use('/booking', boookingRouter)
+app.use('/file', fileRouter)
 
 export default app;

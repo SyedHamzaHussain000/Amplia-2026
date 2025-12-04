@@ -9,7 +9,7 @@ import serviceRouter from "./routes/service"
 import ratingRouter from "./routes/rating"
 import boookingRouter from "./routes/booking"
 import fileRouter from "./routes/file"
-import path from "path";
+import chatRouter from "./routes/chat"
 
 const app: Application = express();
 
@@ -17,7 +17,6 @@ app.use(cors())
 app.use(bodyParser.json())
 
 app.use("/uploads", express.static("uploads"));
-app.use("/templates", express.static(path.join(__dirname, "templates")));
 
 app.use('/auth', authRouter)
 app.use('/admin', adminRouter)
@@ -27,5 +26,6 @@ app.use('/service', serviceRouter)
 app.use('/rating', ratingRouter)
 app.use('/booking', boookingRouter)
 app.use('/file', fileRouter)
+app.use('/chat', chatRouter)
 
 export default app;

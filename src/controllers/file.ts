@@ -60,11 +60,7 @@ export const FileController = {
             const { id } = req.params;
 
             const file = await File.findById(id);
-            console.log(file);
-            
             if (!file) return res.status(404).json({ success: false, message: "File not found." });
-
-            if (file.isDeleted) return res.status(400).json({ success: false, message: "File is already deleted." });
 
             file.isDeleted = true;
             file.deletedAt = new Date();
@@ -79,5 +75,49 @@ export const FileController = {
                 message: error instanceof Error ? error.message : "*Internal server error", success: false,
             });
         }
-    }
+    },
+    get: async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const { search, year } = req.query;
+
+            if (id) {
+                const file = await File.findById(id);
+
+                if (!file) return res.status(404).json({ success: false, message: "File not found.", });
+
+                return res.status(200).json({
+                    success: true, message: "File fetched successfully.", file,
+                });
+            }
+
+            let filters: any = {};
+
+            if (search) filters.name = { $regex: search, $options: "i" };
+
+
+            if (year) filters.year = Number(year);
+
+
+            const files = await File.find(filters).sort({ createdAt: -1 });
+
+            if (files.length === 0) {
+                let message = "No files found.";
+                if (search && year) message = `No files found matching '${search}' for year '${year}'.`;
+                else if (search) message = `No files found matching '${search}'.`;
+                else if (year) message = `No files found for year '${year}'.`;
+
+                return res.status(200).json({ success: true, message, files: [] });
+            }
+
+            return res.status(200).json({
+                success: true, message: "Files fetched successfully.", files,
+            });
+
+        } catch (error) {
+            res.status(500).json({
+                message: error instanceof Error ? error.message : "*Internal server error", success: false,
+            });
+        }
+    },
 }

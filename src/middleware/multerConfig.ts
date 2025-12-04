@@ -11,34 +11,55 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let uploadPath = "uploads/";
 
-    // choose folder based on field
-    if (file.fieldname === "profile") uploadPath = "uploads/profile/";
-    if (file.fieldname === "cover") uploadPath = "uploads/cover/";
-    if (file.fieldname === "file") uploadPath = "uploads/file/";
+    switch (file.fieldname) {
+      case "profile":
+        uploadPath = "uploads/profile/";
+        break;
+      case "cover":
+        uploadPath = "uploads/cover/";
+        break;
+      case "media":
+        uploadPath = "uploads/message/media/";
+        break;
+      case "messageFile":
+        uploadPath = "uploads/message/files/";
+        break;
+      case "file":
+        uploadPath = "uploads/file/";
+        break;
+      default:
+        uploadPath = "uploads/others/";
+    }
 
-    ensureDir(uploadPath); // make sure folder exists
+    ensureDir(uploadPath);
 
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + path.extname(file.originalname);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
     cb(null, uniqueSuffix);
   },
 });
 
 const fileFilter = (req: any, file: Express.Multer.File, cb: FileFilterCallback) => {
-  if (file.fieldname === "file") {
-    // only PDF
-    if (file.mimetype === "application/pdf") return cb(null, true);
-    return cb(new Error("Only PDF files are allowed for 'file' upload!"));
-  }
+  switch (file.fieldname) {
+    case "file":        // old PDFs
+    case "messageFile": // new PDFs
+      if (file.mimetype === "application/pdf") return cb(null, true);
+      return cb(new Error("Only PDF files are allowed!"));
 
-  // profile or cover: only image
-  if (file.mimetype.startsWith("image/")) {
-    return cb(null, true);
-  }
+    case "media":       // images or videos
+      if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("video/")) return cb(null, true);
+      return cb(new Error("Only image or video files are allowed for 'media' upload!"));
 
-  return cb(new Error("Invalid file type!"));
+    case "profile":     // profile image
+    case "cover":       // cover image
+      if (file.mimetype.startsWith("image/")) return cb(null, true);
+      return cb(new Error("Only images are allowed for profile/cover!"));
+
+    default:
+      return cb(new Error("Invalid file type!"));
+  }
 };
 
 const upload = multer({ storage, fileFilter });

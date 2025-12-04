@@ -17,6 +17,16 @@ export interface SanitizeOptions {
   remove?: string[];
 }
 
+export interface IGetChatPopulate {
+  withUser?: boolean;
+  withAdmin?: boolean;
+  withMessages?: boolean;
+}
+
+export interface IGetMessagePopulate {
+  withSender?: boolean;
+}
+
 declare global {
   namespace Express {
     interface Request {

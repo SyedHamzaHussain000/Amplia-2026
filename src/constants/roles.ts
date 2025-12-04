@@ -15,3 +15,9 @@ export enum BookingStatus {
     ACTIVE = "active",
     COMPLETED = "completed",
 }
+
+export enum ChatStatus {
+    PENDING = "pending",
+    ACTIVE = "active",
+    RESOLVED = "resolved",
+}

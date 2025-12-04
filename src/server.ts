@@ -23,6 +23,18 @@ app.get('/', (req: Request, res: Response) => {
 io.on("connection", (socket) => {
     console.log("🟢 Client connected");
 
+    // JOIN ROOM
+    socket.on("join_room", (roomId) => {
+        console.log("Client joined room:", roomId);
+        socket.join(roomId);
+    });
+
+    // LEAVE ROOM
+    socket.on("leave_room", (chatId) => {
+        socket.leave(chatId);
+        console.log("Client left room:", chatId);
+    });
+
     socket.on("disconnect", () => {
         console.log("🔴 Client disconnected");
     })

@@ -9,9 +9,11 @@ const router = Router()
 
 router.route('/')
     .post(IsAuth.admins, upload.single("file"), validate(FileValidation.add), FileController.add)
+    .get(IsAuth.everyone, FileController.get)
 
 router.route('/:id')
     .patch(IsAuth.admins, upload.single("file"), validate(FileValidation.update), FileController.update)
     .delete(IsAuth.admins, FileController.delete)
+    .get(IsAuth.everyone, FileController.get)
 
 export default router

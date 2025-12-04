@@ -21,6 +21,7 @@ export interface IGetChatPopulate {
   withUser?: boolean;
   withAdmin?: boolean;
   withMessages?: boolean;
+  withResolved?: boolean;
 }
 
 export interface IGetMessagePopulate {

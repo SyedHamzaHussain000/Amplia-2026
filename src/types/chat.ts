@@ -7,6 +7,7 @@ export interface IChat extends Document {
     chatKey: string;
     status: ChatStatus;
     messages: Types.ObjectId[];
+    resolvedBy: Types.ObjectId | null;
     isDeleted: boolean;
     deletedAt?: Date;
     createdAt?: Date;

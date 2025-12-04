@@ -1,3 +1,7 @@
 import Joi from "joi";
 
-export const AdminValidation = {}
+export const AdminValidation = {
+    hello:{
+        
+    }
+}

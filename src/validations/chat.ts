@@ -15,5 +15,10 @@ export const ChatValidation = {
             return helpers.message({ custom: "At least one of message, media, or files is required" });
         }
         return value;
+    }),
+    get: Joi.object({
+        status: Joi.string()
+            .valid("all", ...Object.values(ChatStatus))
+            .optional()
     })
 }

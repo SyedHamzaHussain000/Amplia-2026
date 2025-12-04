@@ -9,15 +9,19 @@ const router = Router()
 
 router.route('/')
     .post(IsAuth.users, ChatController.create)
-
-router.route('/updateStatus/:chatId')
-    .post(IsAuth.admins, validate(ChatValidation.updateStatus), ChatController.updateStatus)
+    .get(IsAuth.admins, validate(ChatValidation.get) , ChatController.get)
 
 router.route('/:id')
     .post(IsAuth.everyone, upload.fields([
         { name: "media", maxCount: 10 },
         { name: "messageFile", maxCount: 10 }
-    ]) , ChatController.sendMessage)
+    ]), ChatController.sendMessage)
+    .patch(IsAuth.admins, validate(ChatValidation.updateStatus), ChatController.updateStatus)
+    .get(IsAuth.everyone, ChatController.get)
+
+router.route('/message')
+    .patch(IsAuth.everyone, ChatController.markSeen)
+
 
 export default router
 

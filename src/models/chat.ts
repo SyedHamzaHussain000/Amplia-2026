@@ -8,6 +8,7 @@ const ChatSchema = new Schema<IChat>({
     chatKey: { type: String, required: true },
     status: { type: String, enum: Object.values(ChatStatus), default: ChatStatus.PENDING },
     messages: [{ type: Schema.Types.ObjectId, ref: "Message", default: [] }],
+    resolvedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
 }, { timestamps: true });

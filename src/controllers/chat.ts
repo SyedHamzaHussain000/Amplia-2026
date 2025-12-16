@@ -5,6 +5,7 @@ import { ChatStatus } from "../constants/roles";
 import mongoose from "mongoose";
 import { getChatPopulate } from "../utils/chatPopulate";
 import { getMessagePopulate } from "../utils/messagePopulate";
+import { createUploadUrl } from "../utils/createUploadUrl";
 
 export const ChatController = {
     create: async (req: Request, res: Response) => {
@@ -113,8 +114,8 @@ export const ChatController = {
             const files = (req.files as any)?.messageFile || [];
             const media = (req.files as any)?.media || [];
 
-            const filesUrls = files.map((f: any) => `${req.protocol}://${req.get("host")}/${f.path.replace(/\\/g, '/')}`);
-            const mediaUrls = media.map((f: any) => `${req.protocol}://${req.get("host")}/${f.path.replace(/\\/g, '/')}`);
+            const filesUrls = files.map((f: any) => createUploadUrl(req, f));
+            const mediaUrls = media.map((f: any) => createUploadUrl(req, f));
 
             const newMessage = await Message.create({
                 chat: chat._id,

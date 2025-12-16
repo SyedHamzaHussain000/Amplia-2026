@@ -17,7 +17,7 @@ const io = new Server(httpServer, {
 app.set("socketio", io);
 
 app.get('/', (req: Request, res: Response) => {
-    res.send('Hello, Louisiana server!')
+    res.send('Hello, Amplia server!')
 })
 
 io.on("connection", (socket) => {

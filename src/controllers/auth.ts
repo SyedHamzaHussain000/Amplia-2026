@@ -10,6 +10,7 @@ import { createJWT } from "../utils/createJWT";
 import { sanitizeUser } from "../utils/sanitizeUser";
 import { verifyHashedPass } from "../utils/verifyHashedPass";
 import { UserRole } from "../constants/roles";
+import { getTemplatePath } from "../utils/getTemplatePath";
 
 export const AuthController = {
     signupRequestOtp: async (req: Request, res: Response) => {
@@ -41,7 +42,7 @@ export const AuthController = {
                 subject: "Complete your registration",
                 otp: OTP,
                 name: `${firstName} ${lastName}`,
-                templatePath: "../templates/completeRegistration.html",
+                templatePath: getTemplatePath("completeRegistration.html")
             });
 
             res.status(200).json({ success: true, message: "OTP sent successfully" });
@@ -124,7 +125,7 @@ export const AuthController = {
                 subject: "Complete your registration",
                 otp: OTP,
                 name: `${pendingUser.firstName} ${pendingUser.lastName}`,
-                templatePath: "../templates/completeRegistration.html",
+                templatePath: getTemplatePath("completeRegistration.html")
             });
 
             return res.status(200).json({ success: true, message: "OTP resent successfully." });
@@ -143,7 +144,7 @@ export const AuthController = {
 
             const user = await User.findOne({ email: lowerEmail });
             if (!user) return res.status(400).json({ success: false, message: "Invalid email or password." });
-            
+
             const isPasswordVerified = await verifyHashedPass(password, user.password);
             if (!isPasswordVerified) return res.status(400).json({ success: false, message: "Invalid email or password." });
 
@@ -183,7 +184,8 @@ export const AuthController = {
                 subject: "Reset Your Password",
                 otp: OTP,
                 name: `${user.firstName} ${user.lastName}`,
-                templatePath: "../templates/fotgotPassword.html",
+                templatePath: getTemplatePath("fotgotPassword.html")
+
             });
             res.status(200).json({ success: true, message: "Email send successfully." });
         } catch (error) {

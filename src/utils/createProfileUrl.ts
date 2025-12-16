@@ -1,10 +1,8 @@
 import { Request } from "express";
+import { createUploadUrl } from "./createUploadUrl";
 
 export const createProfileUrl = (req: Request): string => {
-     if (req.file) {
-        const baseUrl = `${req.protocol}://${req.get("host")}`;
-        return `${baseUrl}/uploads/${req.file.filename}`;
-    }
+    if (req.file) return createUploadUrl(req, req.file);
 
     if (req.body.profile && typeof req.body.profile === "string") {
         return req.body.profile;

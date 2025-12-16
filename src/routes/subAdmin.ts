@@ -10,7 +10,7 @@ const router = Router()
 router.route('/')
     .post(IsAuth.superAdmin, upload.single("profile"),
         validate(SubAdminValidation.createSubAdmin), SubAdminController.createSubAdmin)
-    .get(IsAuth.superAdmin, SubAdminController.getSubAdmins)
+    .get(IsAuth.everyone, SubAdminController.getSubAdmins)
 
 router.route('/:id')
     .patch(IsAuth.admins, upload.single("profile"),

@@ -10,6 +10,7 @@ import ratingRouter from "./routes/rating"
 import boookingRouter from "./routes/booking"
 import fileRouter from "./routes/file"
 import chatRouter from "./routes/chat"
+import userRouter from "./routes/user"
 
 const app: Application = express();
 
@@ -27,5 +28,6 @@ app.use('/rating', ratingRouter)
 app.use('/booking', boookingRouter)
 app.use('/file', fileRouter)
 app.use('/chat', chatRouter)
+app.use('/user', userRouter)
 
 export default app;

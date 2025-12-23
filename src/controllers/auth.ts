@@ -19,8 +19,16 @@ export const AuthController = {
 
             const lowerEmail = toLowerEmail(email)
 
-            const user = await User.findOne({ email: lowerEmail });
-            if (user) return res.status(400).json({ success: false, message: "This email is already registered." });
+            const user = await User.collection.findOne({ email: lowerEmail });
+            if (user) {
+                if (user.isDeleted) {
+                    return res.status(400).json({
+                        success: false, message: "Your account has been deleted. Please contact support."
+                    });
+                }
+
+                return res.status(400).json({ success: false, message: "This email is already registered." });
+            }
 
             const profileUrl = createProfileUrl(req);
             const OTP = await createOtp();
@@ -142,8 +150,9 @@ export const AuthController = {
 
             const lowerEmail = toLowerEmail(email);
 
-            const user = await User.findOne({ email: lowerEmail });
+            const user = await User.collection.findOne({ email: lowerEmail });
             if (!user) return res.status(400).json({ success: false, message: "Invalid email or password." });
+            if (user.isDeleted) return res.status(400).json({ success: false, message: "Your account has been deleted. Please contact support." });
 
             const isPasswordVerified = await verifyHashedPass(password, user.password);
             if (!isPasswordVerified) return res.status(400).json({ success: false, message: "Invalid email or password." });

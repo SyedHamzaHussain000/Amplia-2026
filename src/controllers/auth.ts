@@ -149,12 +149,16 @@ export const AuthController = {
             const { email, password } = req.body;
 
             const lowerEmail = toLowerEmail(email);
+            console.log('Login attempt for:', lowerEmail);
 
             const user = await User.collection.findOne({ email: lowerEmail });
+            console.log('User found:', !!user, user?.email);
             if (!user) return res.status(400).json({ success: false, message: "Invalid email or password." });
             if (user.isDeleted) return res.status(400).json({ success: false, message: "Your account has been deleted. Please contact support." });
 
+            console.log('Comparing passwords...');
             const isPasswordVerified = await verifyHashedPass(password, user.password);
+            console.log('Password verified:', isPasswordVerified);
             if (!isPasswordVerified) return res.status(400).json({ success: false, message: "Invalid email or password." });
 
             const payload = {

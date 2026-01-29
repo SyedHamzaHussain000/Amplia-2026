@@ -4,9 +4,14 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { connectDB } from "./config/db";
 import { port } from "./config/env";
+import { initializeDefaultSettings } from "./controllers/settings";
 
 const httpServer = createServer(app)
-connectDB()
+
+// Connect to DB and initialize default settings
+connectDB().then(() => {
+    initializeDefaultSettings();
+});
 
 const io = new Server(httpServer, {
     cors: {

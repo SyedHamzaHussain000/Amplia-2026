@@ -8,13 +8,11 @@ import { SubAdminController } from "../controllers/SubAdmin";
 const router = Router()
 
 router.route('/')
-    .post(IsAuth.superAdmin, upload.single("profile"),
-        validate(SubAdminValidation.createSubAdmin), SubAdminController.createSubAdmin)
+    .post(IsAuth.superAdmin, upload.single("profile"), SubAdminController.createSubAdmin)
     .get(IsAuth.everyone, SubAdminController.getSubAdmins)
 
 router.route('/:id')
-    .patch(IsAuth.admins, upload.single("profile"),
-        validate(SubAdminValidation.updateSubAdmin), SubAdminController.updateSubAdmin)
+    .patch(IsAuth.admins, upload.single("profile"), SubAdminController.updateSubAdmin)
     .delete(IsAuth.superAdmin, SubAdminController.deleteSubAdmin)
     .get(IsAuth.admins, SubAdminController.getSubAdmins)
 

@@ -1,6 +1,8 @@
 import mongoose, { Document } from "mongoose";
 import { ICategory } from "./category";
 
+export type PlanTier = 'standard' | 'premium' | 'gold' | 'platinum';
+
 export interface IPlan extends Document {
     name: string;
     price: number;
@@ -12,10 +14,13 @@ export interface IService extends Document {
     category: mongoose.Types.ObjectId | ICategory;
     description?: string;
     cover?: string;
-    plans: IPlan[];
+    price: number;
+    billingCycle: 'monthly' | 'yearly';
+    features: string[];
+    plans: PlanTier;
     isActive: boolean;
-    ratings: mongoose.Types.ObjectId[]; 
-    averageRating: number; 
+    ratings: mongoose.Types.ObjectId[];
+    averageRating: number;
     ratingCount: number;
     createdAt?: Date;
     updatedAt?: Date;

@@ -12,8 +12,16 @@ export const BookingController = {
             const serviceExist = await Service.findById(service).populate<{ category: ICategory }>('category');
             if (!serviceExist) return res.status(404).json({ success: false, message: "Service not found" });
 
-            const plan = serviceExist.plans.find((p: any) => p.name === planName);
-            if (!plan) return res.status(400).json({ success: false, message: "Plan not found in service" });
+            if (serviceExist.plans !== planName) {
+                return res.status(400).json({ success: false, message: `Selected plan ${planName} does not match service plan ${serviceExist.plans}` });
+            }
+
+            const plan = {
+                name: serviceExist.plans,
+                price: serviceExist.price,
+                description: serviceExist.description || ""
+            };
+
 
             const booking = await Booking.create({
                 user: _id,

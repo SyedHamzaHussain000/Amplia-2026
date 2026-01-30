@@ -8,7 +8,10 @@ import { UserRole } from "../constants/roles";
 export const SubAdminController = {
     createSubAdmin: async (req: Request, res: Response) => {
         try {
-            const { firstName, lastName, email, companyName, password, status } = req.body;
+            console.log(`[SubAdmin Controller] createSubAdmin hit`);
+            console.log(`[SubAdmin Controller] Body:`, JSON.stringify(req.body, null, 2));
+            console.log(`[SubAdmin Controller] File:`, req.file ? `File present: ${req.file.fieldname}` : "No file present");
+            const { firstName, email, password, status, role } = req.body;
             const lowerEmail = toLowerEmail(email)
 
             const exists = await User.collection.findOne({ email: lowerEmail });
@@ -27,9 +30,9 @@ export const SubAdminController = {
             const hashedPassword = await createHashedPassword(password)
 
             const subAdmin = await User.create({
-                firstName, lastName, email: lowerEmail, companyName,
+                firstName, email: lowerEmail,
                 password: hashedPassword, profile: profileUrl,
-                role: UserRole.SUB_ADMIN, status
+                role: role || UserRole.SUB_ADMIN, status
             })
 
             return res.status(201).json({
@@ -44,8 +47,11 @@ export const SubAdminController = {
     },
     updateSubAdmin: async (req: Request, res: Response) => {
         try {
+            console.log(`[SubAdmin Controller] updateSubAdmin hit`);
+            console.log(`[SubAdmin Controller] Body:`, JSON.stringify(req.body, null, 2));
+            console.log(`[SubAdmin Controller] File:`, req.file ? `File present: ${req.file.fieldname}` : "No file present");
             const { id } = req.params;
-            const { firstName, lastName, email, companyName, password, status } = req.body;
+            const { firstName, email, status, role } = req.body;
 
             const subAdmin = await User.findOne({ _id: id, role: UserRole.SUB_ADMIN });
             if (!subAdmin) return res.status(404).json({ success: false, message: "Sub Admin not found." });
@@ -53,10 +59,9 @@ export const SubAdminController = {
             const updateData: any = {};
 
             if (firstName) updateData.firstName = firstName;
-            if (lastName !== undefined) updateData.lastName = lastName;
-            if (companyName) updateData.companyName = companyName;
-
+            if (email) updateData.email = toLowerEmail(email);
             if (status) updateData.status = status;
+            if (role) updateData.role = role;
 
             if (req.file) {
                 updateData.profile = createProfileUrl(req);

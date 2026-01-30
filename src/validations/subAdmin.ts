@@ -1,20 +1,20 @@
 import Joi from "joi";
-import { SubAdminStatus } from "../constants/roles";
+import { SubAdminStatus, UserRole } from "../constants/roles";
 
 export const SubAdminValidation = {
     createSubAdmin: Joi.object({
-        firstName: Joi.string().min(2).max(50).required(),
-        lastName: Joi.string().min(2).max(50).optional().allow(""),
+        firstName: Joi.string().min(2).max(100).required(),
         email: Joi.string().email().required(),
-        companyName: Joi.string().min(2).max(100).optional().allow(""),
         password: Joi.string().min(6).required(),
-        profile: Joi.string().optional().allow(""),
-        status: Joi.string().valid(...Object.values(SubAdminStatus)).required()
+        role: Joi.string().valid(UserRole.SUB_ADMIN).optional(),
+        status: Joi.string().valid(...Object.values(SubAdminStatus)).required(),
+        profile: Joi.any().optional(),
     }),
     updateSubAdmin: Joi.object({
-        firstName: Joi.string().min(2).max(50).optional(),
-        lastName: Joi.string().min(2).max(50).optional().allow(""),
-        companyName: Joi.string().min(2).max(100).optional().allow(""),
+        firstName: Joi.string().min(2).max(100).optional(),
+        email: Joi.string().email().optional(),
         status: Joi.string().valid(...Object.values(SubAdminStatus)).optional(),
+        role: Joi.string().valid(UserRole.SUB_ADMIN).optional(),
+        profile: Joi.any().optional(),
     }),
 }

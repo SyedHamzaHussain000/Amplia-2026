@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Category } from "../models/category";
 import { createCoverUrl } from "../utils/createCoverUrl";
+import { createIconUrl } from "../utils/createIconUrl";
 import { Service } from "../models/services";
 
 export const CategoryController = {
@@ -12,11 +13,13 @@ export const CategoryController = {
             if (existing) return res.status(400).json({ success: false, message: "Category with this name already exists." });
 
             const coverUrl = createCoverUrl(req);
+            const iconUrl = createIconUrl(req);
 
             const newCategory = await Category.create({
                 name: name,
                 description: description || "",
-                cover: coverUrl
+                cover: coverUrl,
+                icon: iconUrl
             });
 
             return res.status(201).json({
@@ -43,7 +46,10 @@ export const CategoryController = {
                 category.name = name.trim();
             }
             if (description !== undefined) category.description = description;
-            if (req.file) { category.cover = createCoverUrl(req) }
+            if (req.file) {
+                if (req.file.fieldname === "icon") category.icon = createIconUrl(req);
+                if (req.file.fieldname === "cover") category.cover = createCoverUrl(req);
+            }
 
             const updatedCategory = await category.save();
 

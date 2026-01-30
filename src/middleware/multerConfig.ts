@@ -15,6 +15,9 @@ const storage = multer.diskStorage({
       case "profile":
         uploadPath = "uploads/profile/";
         break;
+      case "icon":
+        uploadPath = "uploads/category/icons/";
+        break;
       case "cover":
         uploadPath = "uploads/cover/";
         break;
@@ -54,8 +57,9 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: FileFilterCallback)
 
     case "profile":     // profile image
     case "cover":       // cover image
+    case "icon":        // category icon
       if (file.mimetype.startsWith("image/")) return cb(null, true);
-      return cb(new Error("Only images are allowed for profile/cover!"));
+      return cb(new Error("Only images are allowed for profile/cover/icon!"));
 
     default:
       return cb(new Error("Invalid file type!"));

@@ -6,12 +6,12 @@ import { Service } from "../models/services";
 export const ServiceController = {
     createService: async (req: Request, res: Response) => {
         try {
-            const { name, category, description, plans, isActive } = req.body;
+            const { name, category, description, price, billingCycle, features, plans, isActive } = req.body;
 
             const categoryExists = await Category.findById(category);
             if (!categoryExists) return res.status(404).json({ success: false, message: "Category not found." });
 
-            const existingService = await Service.collection.findOne({ name: name.trim() });
+            const existingService = await Service.findOne({ name: name.trim() });
             if (existingService) {
                 if (existingService.isDeleted) {
                     return res.status(400).json({
@@ -25,34 +25,34 @@ export const ServiceController = {
                 });
             }
 
-
             const coverUrl = createCoverUrl(req);
 
-            let plansData: any = plans;
-            if (typeof plansData === "string") {
+            let plansData = plans;
+
+            let featuresData: any = features;
+            if (typeof featuresData === "string") {
                 try {
-                    plansData = JSON.parse(plansData);
+                    featuresData = JSON.parse(featuresData);
                 } catch (err) {
-                    return res.status(400).json({ success: false, message: "Invalid plans JSON" });
+                    featuresData = [];
                 }
             }
 
-            if (!Array.isArray(plansData) || plansData.length === 0) {
-                return res.status(400).json({ success: false, message: "At least one plan is requiredasd." });
-            }
-
             const newService = await Service.create({
-                name,
+                name: name.trim(),
                 category,
                 description,
+                price: Number(price),
+                billingCycle,
+                features: Array.isArray(featuresData) ? featuresData : [],
                 cover: coverUrl,
-                plans: plansData,
-                isActive,
+                plans: plansData || 'standard',
+                isActive: isActive !== undefined ? isActive : true,
             });
 
             await newService.populate("category");
 
-            res.status(201).json({ success: false, message: "Service created successfully.", service: newService });
+            res.status(201).json({ success: true, message: "Service created successfully.", service: newService });
         } catch (error) {
             res.status(500).json({
                 message: error instanceof Error ? error.message : "*Internal server error", success: false,
@@ -62,7 +62,7 @@ export const ServiceController = {
     updateService: async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
-            const { name, category, description, plans, isActive } = req.body;
+            const { name, category, description, price, billingCycle, features, plans, isActive } = req.body;
 
             const service = await Service.findById(id);
             if (!service) return res.status(404).json({ success: false, message: "Service not found." });
@@ -83,25 +83,26 @@ export const ServiceController = {
             }
 
             if (description !== undefined) updateData.description = description;
+            if (price !== undefined) updateData.price = Number(price);
+            if (billingCycle !== undefined) updateData.billingCycle = billingCycle;
+
+            if (features) {
+                let featuresData: any = features;
+                if (typeof featuresData === "string") {
+                    try {
+                        featuresData = JSON.parse(featuresData);
+                    } catch (err) {
+                        featuresData = [];
+                    }
+                }
+                updateData.features = Array.isArray(featuresData) ? featuresData : [];
+            }
 
             const coverUrl = createCoverUrl(req);
             if (coverUrl) updateData.cover = coverUrl;
 
             if (plans) {
-                let plansData: any = plans;
-                if (typeof plansData === "string") {
-                    try {
-                        plansData = JSON.parse(plansData);
-                    } catch (err) {
-                        return res.status(400).json({ success: false, message: "Invalid plans JSON." });
-                    }
-                }
-
-                if (!Array.isArray(plansData) || plansData.length === 0) {
-                    return res.status(400).json({ success: false, message: "At least one plan is required." });
-                }
-
-                updateData.plans = plansData;
+                updateData.plans = plans;
             }
 
             if (isActive !== undefined) updateData.isActive = isActive;

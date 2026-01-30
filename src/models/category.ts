@@ -4,6 +4,7 @@ import { ICategory } from "../types";
 const CategorySchema = new Schema<ICategory>({
     name: { type: String, required: true, unique: true, trim: true },
     description: { type: String, default: "" },
+    icon: { type: String, default: "" },
     cover: { type: String, default: "" },
 }, { timestamps: true });
 

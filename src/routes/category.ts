@@ -8,12 +8,12 @@ import { CategoryValidation } from "../validations/category";
 const router = Router()
 
 router.route('/')
-    .post(IsAuth.superAdmin, upload.fields([{ name: "cover", maxCount: 1 }, { name: "icon", maxCount: 1 }]), CategoryController.createCategory)
+    .post(IsAuth.everyone, upload.fields([{ name: "cover", maxCount: 1 }, { name: "icon", maxCount: 1 }]), CategoryController.createCategory)
     .get(IsAuth.everyone, CategoryController.getCategory)
 
 router.route('/:id')
-    .patch(IsAuth.superAdmin, upload.fields([{ name: "cover", maxCount: 1 }, { name: "icon", maxCount: 1 }]), CategoryController.updateCategory)
-    .delete(IsAuth.superAdmin, CategoryController.deleteCategory)
+    .patch(IsAuth.everyone, upload.fields([{ name: "cover", maxCount: 1 }, { name: "icon", maxCount: 1 }]), CategoryController.updateCategory)
+    .delete(IsAuth.everyone, CategoryController.deleteCategory)
     .get(IsAuth.everyone, CategoryController.getCategory)
 
 export default router

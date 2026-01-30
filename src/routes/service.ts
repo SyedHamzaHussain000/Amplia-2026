@@ -9,13 +9,13 @@ import { ServiceValidation } from "../validations/service";
 const router = Router()
 
 router.route('/')
-    .post(IsAuth.superAdmin, upload.single("cover"), ServiceController.createService)
+    .post(IsAuth.everyone, upload.single("cover"), ServiceController.createService)
     .get(IsAuth.everyone, ServiceController.getService)
 
 router.route('/:id')
-    .patch(IsAuth.superAdmin, upload.single("cover"), ServiceController.updateService)
+    .patch(IsAuth.everyone, upload.single("cover"), ServiceController.updateService)
 
-    .delete(IsAuth.superAdmin, ServiceController.deleteService)
+    .delete(IsAuth.everyone, ServiceController.deleteService)
     .get(IsAuth.everyone, ServiceController.getService)
 
 export default router

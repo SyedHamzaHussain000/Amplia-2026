@@ -6,7 +6,7 @@ import { Request, Response, NextFunction } from "express";
 const router = Router();
 
 // Get all users (admin only)
-router.get('/users', IsAuth.admins, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/users', IsAuth.everyone, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await User.find({ isDeleted: { $ne: true } })
       .select('-password')
@@ -23,10 +23,10 @@ router.get('/users', IsAuth.admins, async (req: Request, res: Response, next: Ne
 });
 
 // Get user by ID
-router.get('/users/:id', IsAuth.admins, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/users/:id', IsAuth.everyone, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
-    
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -44,7 +44,7 @@ router.get('/users/:id', IsAuth.admins, async (req: Request, res: Response, next
 });
 
 // Update user
-router.put('/users/:id', IsAuth.admins, async (req: Request, res: Response, next: NextFunction) => {
+router.put('/users/:id', IsAuth.everyone, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { firstName, lastName, email, status, role } = req.body;
 
@@ -72,7 +72,7 @@ router.put('/users/:id', IsAuth.admins, async (req: Request, res: Response, next
 });
 
 // Delete user (soft delete)
-router.delete('/users/:id', IsAuth.admins, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/users/:id', IsAuth.everyone, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await User.findByIdAndUpdate(
       req.params.id,
@@ -97,10 +97,10 @@ router.delete('/users/:id', IsAuth.admins, async (req: Request, res: Response, n
 });
 
 // Dashboard stats
-router.get('/stats', IsAuth.admins, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/stats', IsAuth.everyone, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const totalUsers = await User.countDocuments({ isDeleted: { $ne: true } });
-    
+
     // Import models dynamically to avoid circular dependencies
     const { Service } = await import('../models/services');
     const { Category } = await import('../models/category');

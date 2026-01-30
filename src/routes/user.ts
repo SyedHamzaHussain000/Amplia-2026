@@ -8,10 +8,10 @@ import upload from "../middleware/multerConfig";
 const router = Router()
 
 router.route('/')
-    .get(IsAuth.users, UserController.get)
-    .patch(IsAuth.users, upload.single("profile"), validate(UserValidation.update), UserController.update)
-    .delete(IsAuth.users, UserController.delete)
+    .get(IsAuth.everyone, UserController.get)
+    .patch(IsAuth.everyone, upload.single("profile"), validate(UserValidation.update), UserController.update)
+    .delete(IsAuth.everyone, UserController.delete)
 
-router.post('/updatePassword', IsAuth.users, validate(UserValidation.updatePassword), UserController.updatePassword)
+router.post('/updatePassword', IsAuth.everyone, validate(UserValidation.updatePassword), UserController.updatePassword)
 
 export default router

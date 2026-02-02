@@ -17,7 +17,8 @@ const BookingSchema = new Schema<IBooking>({
         }
     },
     status: { type: String, enum: Object.values(BookingStatus), default: BookingStatus.NEW },
-    scheduledDate: { type: Date, default: Date.now },
+    startDate: { type: Date, default: Date.now },
+    endDate: { type: Date, default: null },
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
 }, { timestamps: true });

@@ -7,7 +7,7 @@ export const BookingController = {
     create: async (req: Request, res: Response) => {
         try {
             const _id = req._id
-            const { service, planName, scheduledDate, status } = req.body;
+            const { service, planName, startDate, endDate, status } = req.body;
 
             const serviceExist = await Service.findById(service).populate<{ category: ICategory }>('category');
             if (!serviceExist) return res.status(404).json({ success: false, message: "Service not found" });
@@ -33,8 +33,9 @@ export const BookingController = {
                     cover: serviceExist.cover,
                     plan: plan,
                 },
-                status,
-                scheduledDate,
+                status: status || 'new',
+                startDate: startDate || new Date(),
+                endDate: endDate || startDate || new Date(),
             });
             res.status(200).json({ success: true, message: 'Your booking is confirmed.', booking })
 

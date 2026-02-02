@@ -46,10 +46,11 @@ export const CategoryController = {
                 category.name = name.trim();
             }
             if (description !== undefined) category.description = description;
-            if (req.file) {
-                if (req.file.fieldname === "icon") category.icon = createIconUrl(req);
-                if (req.file.fieldname === "cover") category.cover = createCoverUrl(req);
-            }
+            const iconUrl = createIconUrl(req);
+            if (iconUrl) category.icon = iconUrl;
+
+            const coverUrl = createCoverUrl(req);
+            if (coverUrl) category.cover = coverUrl;
 
             const updatedCategory = await category.save();
 

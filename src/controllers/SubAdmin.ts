@@ -63,9 +63,8 @@ export const SubAdminController = {
             if (status) updateData.status = status;
             if (role) updateData.role = role;
 
-            if (req.file) {
-                updateData.profile = createProfileUrl(req);
-            }
+            const profileUrl = createProfileUrl(req);
+            if (profileUrl) updateData.profile = profileUrl;
 
             const updatedSubAdmin = await User.findByIdAndUpdate(id, updateData, { new: true });
 

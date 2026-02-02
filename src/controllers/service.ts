@@ -185,5 +185,23 @@ export const ServiceController = {
                 success: false, message: error instanceof Error ? error.message : "*Internal server error"
             });
         }
+    },
+    getServicesByCategory: async (req: Request, res: Response) => {
+        try {
+            const { categoryId } = req.params;
+
+            const services = await Service.find({ category: categoryId }).populate("category").sort({ createdAt: -1 });
+
+            return res.status(200).json({
+                success: true,
+                message: "Services fetched successfully.",
+                services
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: error instanceof Error ? error.message : "*Internal server error"
+            });
+        }
     }
 }

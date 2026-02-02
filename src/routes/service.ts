@@ -18,4 +18,6 @@ router.route('/:id')
     .delete(IsAuth.everyone, ServiceController.deleteService)
     .get(IsAuth.everyone, ServiceController.getService)
 
+router.get('/category/:categoryId', IsAuth.everyone, ServiceController.getServicesByCategory)
+
 export default router

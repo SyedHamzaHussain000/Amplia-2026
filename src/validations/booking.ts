@@ -8,11 +8,8 @@ export const BookingValidation = {
         status: Joi.string()
             .valid(...Object.values([BookingStatus.NEW, BookingStatus.SCHEDULED]))
             .required(),
-        scheduledDate: Joi.when("status", {
-            is: BookingStatus.SCHEDULED,
-            then: Joi.date().required(),
-            otherwise: Joi.date().optional().allow(null),
-        }),
+        startDate: Joi.date().optional(),
+        endDate: Joi.date().optional(),
     }),
     updateStatus: Joi.object({
         status: Joi.string()

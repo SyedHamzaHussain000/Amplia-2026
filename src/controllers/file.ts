@@ -15,7 +15,7 @@ export const FileController = {
                 });
             }
 
-            const url = `${req.protocol}://${req.get("host")}/uploads/file/${req.file.filename}`;
+            const url = req.file.filename;
 
             const newFile = await File.create({ name, year, url });
 
@@ -40,7 +40,7 @@ export const FileController = {
             if (year) file.year = year;
 
             if (req.file) {
-                const url = `${req.protocol}://${req.get("host")}/uploads/file/${req.file.filename}`;
+                const url = req.file.filename;
                 file.url = url;
             }
 

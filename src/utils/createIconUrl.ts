@@ -1,5 +1,6 @@
 import { Request } from "express";
 import { createUploadUrl } from "./createUploadUrl";
+import { getFilenameFromUrl } from "./getFilenameFromUrl";
 
 export const createIconUrl = (req: Request): string => {
     // Handle multiple files (upload.fields)
@@ -14,8 +15,9 @@ export const createIconUrl = (req: Request): string => {
     }
 
     if (req.body.icon && typeof req.body.icon === "string") {
-        return req.body.icon;
+        return getFilenameFromUrl(req.body.icon);
     }
 
     return "";
 };
+

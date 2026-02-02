@@ -1,5 +1,6 @@
 import { Request } from "express";
 import { createUploadUrl } from "./createUploadUrl";
+import { getFilenameFromUrl } from "./getFilenameFromUrl";
 
 export const createCoverUrl = (req: Request): string => {
     // Handle multiple files (upload.fields)
@@ -14,7 +15,7 @@ export const createCoverUrl = (req: Request): string => {
     }
 
     if (req.body.cover && typeof req.body.cover === "string") {
-        return req.body.cover;
+        return getFilenameFromUrl(req.body.cover);
     }
 
     return "";

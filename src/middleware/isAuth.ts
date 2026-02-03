@@ -25,7 +25,10 @@ const verifyToken = (allowedRoles: string[]) => {
             req.email = decoded.email;
             req.role = decoded.role;
 
+            console.log(`[AuthDebug] Role: ${req.role}, Allowed: ${allowedRoles}`);
+
             if (allowedRoles.length && !allowedRoles.includes(req.role)) {
+                console.log(`[AuthDebug] Access Denied. Required one of: ${allowedRoles.join(', ')}`);
                 return res.status(403).json({ success: false, message: 'Access denied.' });
             }
 
@@ -42,6 +45,6 @@ export const IsAuth = {
     admins: verifyToken([UserRole.SUPER_ADMIN, UserRole.SUB_ADMIN]), // both admins
     superAdmin: verifyToken([UserRole.SUPER_ADMIN]), // only super-admin
     subAdmin: verifyToken([UserRole.SUB_ADMIN]),     // only sub-admin
-    everyone: verifyToken([UserRole.USER , UserRole.SUPER_ADMIN, UserRole.SUB_ADMIN]),     // only sub-admin
+    everyone: verifyToken([UserRole.USER, UserRole.SUPER_ADMIN, UserRole.SUB_ADMIN]),     // only sub-admin
 };
 

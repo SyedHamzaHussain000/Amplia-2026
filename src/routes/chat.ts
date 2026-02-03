@@ -8,8 +8,8 @@ import upload from "../middleware/multerConfig";
 const router = Router()
 
 router.route('/')
-    .post(IsAuth.users, ChatController.create)
-    .get(IsAuth.admins, validate(ChatValidation.get) , ChatController.get)
+    .post(IsAuth.everyone, ChatController.create)
+    .get(IsAuth.admins, validate(ChatValidation.get), ChatController.get)
 
 router.route('/:id')
     .post(IsAuth.everyone, upload.fields([

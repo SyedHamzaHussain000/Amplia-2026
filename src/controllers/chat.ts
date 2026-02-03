@@ -12,23 +12,41 @@ export const ChatController = {
         try {
             const _id = req._id;
             const io = req.app.get("socketio");
+            const { bookingId } = req.body;
 
-            let chat = await Chat.findOne({
-                user: _id,
-                status: { $in: [ChatStatus.PENDING, ChatStatus.ACTIVE] }
-            }).populate(getChatPopulate({ withUser: true, withAdmin: true, withMessages: true }))
+            // If bookingId is provided, check if chat already exists for this booking
+            if (bookingId) {
+                let chat = await Chat.findOne({
+                    booking: bookingId
+                }).populate(getChatPopulate({ withUser: true, withAdmin: true, withMessages: true }));
 
-            if (chat) {
-                return res.status(200).json({
-                    success: true, message: `Existing ${chat.status} chat found.`, chat,
-                });
+                if (chat) {
+                    return res.status(200).json({
+                        success: true, message: `Existing chat found for this booking.`, chat,
+                    });
+                }
+            } else {
+                // Determine if we should look for a pending/active generic support chat
+                // For now, let's keep the old logic as fallback or for general support
+                let chat = await Chat.findOne({
+                    user: _id,
+                    booking: null,
+                    status: { $in: [ChatStatus.PENDING, ChatStatus.ACTIVE] }
+                }).populate(getChatPopulate({ withUser: true, withAdmin: true, withMessages: true }))
+
+                if (chat) {
+                    return res.status(200).json({
+                        success: true, message: `Existing ${chat.status} chat found.`, chat,
+                    });
+                }
             }
 
             const chatKey = _id.toString();
 
-            chat = await Chat.create({
+            let chat = await Chat.create({
                 user: _id,
                 admin: null,
+                booking: bookingId || null,
                 status: ChatStatus.PENDING,
                 chatKey,
                 messages: [],

@@ -43,7 +43,7 @@ export const ChatController = {
 
             const chatKey = _id.toString();
 
-            let chat = await Chat.create({
+            const createdChat = await Chat.create({
                 user: _id,
                 admin: null,
                 booking: bookingId || null,
@@ -52,12 +52,18 @@ export const ChatController = {
                 messages: [],
             });
 
-            chat = await Chat.findById(chat._id).populate(getChatPopulate({ withUser: true, withAdmin: true }))
+            const populatedChat = await Chat.findById(createdChat._id).populate(getChatPopulate({ withUser: true, withAdmin: true }));
 
-            io.emit("new_chat", chat);
+            if (!populatedChat) {
+                return res.status(500).json({
+                    success: false, message: "Failed to retrieve created chat."
+                });
+            }
+
+            io.emit("new_chat", populatedChat);
 
             return res.status(201).json({
-                success: true, message: "Chat created successfully.", chat,
+                success: true, message: "Chat created successfully.", chat: populatedChat,
             });
 
         } catch (error) {

@@ -21,6 +21,7 @@ export interface IBooking extends Document {
     user: Types.ObjectId;
     service: IBookedService;
     status: BookingStatus;
+    assignedTo?: Types.ObjectId;
     startDate?: Date;
     endDate?: Date;
     isDeleted: boolean;

@@ -15,4 +15,7 @@ router.route('/:id')
     .delete(IsAuth.everyone, BookingController.delete)
     .get(IsAuth.everyone, BookingController.getBooking)
 
+router.route('/:id/assign')
+    .put(IsAuth.everyone, BookingController.assign) // IsAuth.everyone allows logged in users (including subAdmins) to access. We might want to restrict to subAdmins/admins later, but isAuth.everyone ensures they are logged in.
+
 export default router

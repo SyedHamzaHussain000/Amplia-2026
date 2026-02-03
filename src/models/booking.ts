@@ -17,6 +17,7 @@ const BookingSchema = new Schema<IBooking>({
         }
     },
     status: { type: String, enum: Object.values(BookingStatus), default: BookingStatus.NEW },
+    assignedTo: { type: Schema.Types.ObjectId, ref: "User", default: null },
     startDate: { type: Date, default: Date.now },
     endDate: { type: Date, default: null },
     isDeleted: { type: Boolean, default: false },

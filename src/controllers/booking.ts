@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import { Service } from "../models/services";
 import { Booking } from "../models/booking";
 import { ICategory, IService } from "../types";
+import { BookingStatus } from "../constants/roles";
 
 export const BookingController = {
     create: async (req: Request, res: Response) => {
@@ -83,13 +85,49 @@ export const BookingController = {
             });
         }
     },
+    assign: async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const subAdminId = req._id; // Assign to self (current logged in user)
+
+            const booking = await Booking.findById(id);
+            if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
+
+            if (booking.assignedTo) {
+                return res.status(400).json({ success: false, message: "Booking is already assigned to someone." });
+            }
+
+            booking.assignedTo = subAdminId;
+
+            // Logic to update status based on start date
+            const now = new Date();
+            if (booking.startDate > now) {
+                booking.status = 'scheduled'; // BookingStatus.SCHEDULED (assuming string 'scheduled' reflects enum)
+            } else {
+                booking.status = 'active'; // BookingStatus.ACTIVE
+            }
+
+            await booking.save();
+
+            // Populate assignedTo for the response
+            await booking.populate('assignedTo', 'firstName lastName email');
+
+            res.status(200).json({
+                success: true, message: "Booking assigned successfully.", booking
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: error instanceof Error ? error.message : "*Internal server error", success: false,
+            });
+        }
+    },
     getBooking: async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
             const { user, status, service, search } = req.query;
 
             if (id) {
-                const booking = await Booking.findById(id)
+                const booking = await Booking.findById(id).populate('assignedTo', 'firstName lastName email profile');
                 if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
                 return res.status(200).json({ success: true, message: "Booking retrieved successfully.", booking });
@@ -102,7 +140,7 @@ export const BookingController = {
             if (service) query['service._id'] = service;
             if (search) query['service.name'] = { $regex: search, $options: 'i' };
 
-            const bookings = await Booking.find(query)
+            const bookings = await Booking.find(query).populate('assignedTo', 'firstName lastName email profile').sort({ createdAt: -1 });
             return res.status(200).json({ success: true, message: "All bookings retrieved successfully.", bookings });
         } catch (error) {
             res.status(500).json({

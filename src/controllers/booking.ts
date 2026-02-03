@@ -129,7 +129,9 @@ export const BookingController = {
             const { user, status, service, search } = req.query;
 
             if (id) {
-                const booking = await Booking.findById(id).populate('assignedTo', 'firstName lastName email profile');
+                const booking = await Booking.findById(id)
+                    .populate('assignedTo', 'firstName lastName email profile')
+                    .populate('user', 'firstName lastName email profile');
                 if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
                 return res.status(200).json({ success: true, message: "Booking retrieved successfully.", booking });
@@ -142,7 +144,10 @@ export const BookingController = {
             if (service) query['service._id'] = service;
             if (search) query['service.name'] = { $regex: search, $options: 'i' };
 
-            const bookings = await Booking.find(query).populate('assignedTo', 'firstName lastName email profile').sort({ createdAt: -1 });
+            const bookings = await Booking.find(query)
+                .populate('assignedTo', 'firstName lastName email profile')
+                .populate('user', 'firstName lastName email profile')
+                .sort({ createdAt: -1 });
             return res.status(200).json({ success: true, message: "All bookings retrieved successfully.", bookings });
         } catch (error) {
             res.status(500).json({

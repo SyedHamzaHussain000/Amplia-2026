@@ -88,7 +88,7 @@ export const BookingController = {
     assign: async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
-            const subAdminId = req._id; // Assign to self (current logged in user)
+            const subAdminId = new mongoose.Types.ObjectId(req._id); // Assign to self (current logged in user)
 
             const booking = await Booking.findById(id);
             if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
@@ -101,10 +101,12 @@ export const BookingController = {
 
             // Logic to update status based on start date
             const now = new Date();
-            if (booking.startDate > now) {
-                booking.status = 'scheduled'; // BookingStatus.SCHEDULED (assuming string 'scheduled' reflects enum)
+            const startDate = booking.startDate || now;
+
+            if (startDate > now) {
+                booking.status = BookingStatus.SCHEDULED;
             } else {
-                booking.status = 'active'; // BookingStatus.ACTIVE
+                booking.status = BookingStatus.ACTIVE;
             }
 
             await booking.save();

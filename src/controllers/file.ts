@@ -1,23 +1,36 @@
 import { Request, Response } from "express";
 import { File } from "../models/file";
+import { Booking } from "../models/booking";
 import { IFile } from "../types";
 
 export const FileController = {
     add: async (req: Request, res: Response) => {
         try {
-            const { name, year } = req.body
+            const { name, year, bookingId } = req.body
             if (!req.file) return res.status(400).json({ success: false, message: "PDF file is required." });
 
-            const existingFile = await File.findOne({ name, year });
-            if (existingFile) {
-                return res.status(400).json({
-                    success: false, message: `A file with name '${name}' for year '${year}' already exists.`
-                });
+            // If not linked to a booking, check for uniqueness by name+year (global files)
+            if (!bookingId) {
+                const existingFile = await File.findOne({ name, year, booking: null });
+                if (existingFile) {
+                    return res.status(400).json({
+                        success: false, message: `A file with name '${name}' for year '${year}' already exists.`
+                    });
+                }
             }
 
             const url = req.file.filename;
 
-            const newFile = await File.create({ name, year, url });
+            // @ts-ignore
+            const uploadedBy = req.user?._id;
+
+            const newFile = await File.create({
+                name,
+                year,
+                url,
+                booking: bookingId || null,
+                uploadedBy: uploadedBy || null
+            });
 
             res.status(201).json({
                 success: true, message: "File uploaded successfully.", file: newFile
@@ -79,7 +92,7 @@ export const FileController = {
     get: async (req: Request, res: Response) => {
         try {
             const { id } = req.params;
-            const { search, year } = req.query;
+            const { search, year, bookingId } = req.query;
 
             if (id) {
                 const file = await File.findById(id);
@@ -94,12 +107,21 @@ export const FileController = {
             let filters: any = {};
 
             if (search) filters.name = { $regex: search, $options: "i" };
-
-
             if (year) filters.year = Number(year);
 
+            // @ts-ignore
+            if (req.user?.role === "USER") {
+                // @ts-ignore
+                const userBookings = await Booking.find({ user: req.user._id }).select('_id');
+                const bookingIds = userBookings.map(b => b._id);
+                // User sees files linked to their bookings
+                filters.booking = { $in: bookingIds };
+            } else {
+                if (bookingId) filters.booking = bookingId;
+            }
 
-            const files = await File.find(filters).sort({ createdAt: -1 });
+
+            const files = await File.find(filters).populate('booking', 'service status').sort({ createdAt: -1 });
 
             if (files.length === 0) {
                 let message = "No files found.";

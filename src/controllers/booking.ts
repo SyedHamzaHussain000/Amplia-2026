@@ -53,6 +53,16 @@ export const BookingController = {
             const booking = await Booking.findById(id);
             if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
+            // @ts-ignore
+            if (req.user?.role === "subAdmin") {
+                // @ts-ignore
+                const subAdminId = req.user._id.toString();
+                const assignedId = booking.assignedTo?.toString();
+                if (assignedId !== subAdminId) {
+                    return res.status(403).json({ success: false, message: "You can only update bookings assigned to you." });
+                }
+            }
+
             booking.status = status
             await booking.save();
 

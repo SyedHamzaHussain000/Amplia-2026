@@ -13,11 +13,21 @@ connectDB().then(() => {
     initializeDefaultSettings();
 });
 
-const io = new Server(httpServer, {
+// const io = new Server(httpServer, {
+//     cors: {
+//         origin: '*'
+//     }
+// })
+
+const io = new Server(server, {
+    path: "/socket.io",
     cors: {
-        origin: '*'
-    }
-})
+        origin: ["https://apiforapp.link"],
+        methods: ["GET", "POST"]
+    },
+    transports: ["websocket", "polling"]
+});
+
 
 app.set("socketio", io);
 

@@ -19,7 +19,7 @@ connectDB().then(() => {
 //     }
 // })
 
-const io = new Server(server, {
+const io = new Server(httpServer, {
     path: "/socket.io",
     cors: {
         origin: ["https://apiforapp.link"],

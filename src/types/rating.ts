@@ -2,8 +2,9 @@ import mongoose from "mongoose";
 import { Document } from "mongoose";
 
 export interface IRating extends Document {
-    user:  mongoose.Types.ObjectId; 
-    service:  mongoose.Types.ObjectId;
+    user: mongoose.Types.ObjectId;
+    service: mongoose.Types.ObjectId;
+    booking: mongoose.Types.ObjectId;
     rating: number;
     review?: string;
     createdAt?: Date;

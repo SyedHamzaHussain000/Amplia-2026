@@ -24,6 +24,7 @@ export interface IBooking extends Document {
     assignedTo?: Types.ObjectId;
     startDate?: Date;
     endDate?: Date;
+    rating?: Types.ObjectId;
     isDeleted: boolean;
     deletedAt?: Date;
 }

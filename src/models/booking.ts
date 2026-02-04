@@ -20,6 +20,7 @@ const BookingSchema = new Schema<IBooking>({
     assignedTo: { type: Schema.Types.ObjectId, ref: "User", default: null },
     startDate: { type: Date, default: Date.now },
     endDate: { type: Date, default: null },
+    rating: { type: Schema.Types.ObjectId, ref: "Rating", default: null },
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
 }, { timestamps: true });

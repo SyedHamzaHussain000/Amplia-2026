@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { Service } from "../models/services";
 import { Rating } from "../models/rating";
+import { Booking } from "../models/booking";
+import { BookingStatus } from "../constants/roles";
 import mongoose from "mongoose";
 import { updateServiceRatings } from "../utils/updateServiceRatings";
 
@@ -8,19 +10,31 @@ export const RatingController = {
     createRating: async (req: Request, res: Response) => {
         try {
             const _id = req._id
-            const { service, rating, review } = req.body;
+            const { service, booking: bookingId, rating, review } = req.body;
 
             const serviceExist = await Service.findById(service);
             if (!serviceExist) return res.status(404).json({ success: false, message: "Service not found" });
 
-            const existingRating = await Rating.findOne({ user: _id, service });
-            if (existingRating) return res.status(400).json({ success: false, message: "You already rated this service" });
+            const booking = await Booking.findById(bookingId);
+            if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
+
+            if (booking.status !== BookingStatus.COMPLETED) {
+                return res.status(400).json({ success: false, message: "You can only rate completed bookings" });
+            }
+
+            if (booking.user.toString() !== _id) {
+                return res.status(403).json({ success: false, message: "You are not authorized to rate this booking" });
+            }
+
+            const existingRating = await Rating.findOne({ user: _id, booking: bookingId });
+            if (existingRating) return res.status(400).json({ success: false, message: "You already rated this booking" });
 
             const newRating = await Rating.create({
-                user: _id, service, rating, review
+                user: _id, service, booking: bookingId, rating, review
             });
 
             await Service.findByIdAndUpdate(service, { $push: { ratings: newRating._id } });
+            await Booking.findByIdAndUpdate(bookingId, { rating: newRating._id });
 
             await updateServiceRatings(service);
 
@@ -121,10 +135,25 @@ export const RatingController = {
                 .populate("service", "_id name cover description")
                 .sort({ createdAt: -1 });
 
+            let distribution = null;
+            if (service) {
+                const stats = await Rating.aggregate([
+                    { $match: { service: new mongoose.Types.ObjectId(service as string) } },
+                    { $group: { _id: "$rating", count: { $sum: 1 } } }
+                ]);
+
+                distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+                stats.forEach(s => {
+                    // @ts-ignore
+                    distribution[s._id] = s.count;
+                });
+            }
+
             return res.status(200).json({
                 success: true,
                 count: ratings.length,
-                ratings
+                ratings,
+                distribution
             });
 
         } catch (err) {

@@ -5,6 +5,7 @@ import { ChatStatus } from "../constants/roles";
 const ChatSchema = new Schema<IChat>({
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     admin: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    activeSubAdmin: { type: Schema.Types.ObjectId, ref: "User", default: null },
     booking: { type: Schema.Types.ObjectId, ref: "Booking", default: null },
     chatKey: { type: String, required: true },
     status: { type: String, enum: Object.values(ChatStatus), default: ChatStatus.PENDING },

@@ -4,6 +4,7 @@ import { ChatStatus } from "../constants/roles";
 export interface IChat extends Document {
     user: Types.ObjectId;
     admin: Types.ObjectId | null;
+    activeSubAdmin: Types.ObjectId | null;
     booking: Types.ObjectId | null;
     chatKey: string;
     status: ChatStatus;

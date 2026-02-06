@@ -135,6 +135,15 @@ export const ChatController = {
                 });
             }
 
+            // Enforce exclusive locking: Only the user or the activeSubAdmin can send messages
+            const isUser = chat.user.toString() === _id;
+            const isActiveSubAdmin = chat.activeSubAdmin && chat.activeSubAdmin.toString() === _id;
+            if (!isUser && !isActiveSubAdmin) {
+                return res.status(403).json({
+                    success: false, message: "You are not authorized to send messages in this chat.",
+                });
+            }
+
             const files = (req.files as any)?.messageFile || [];
             const media = (req.files as any)?.media || [];
 
@@ -254,6 +263,83 @@ export const ChatController = {
         } catch (error) {
             res.status(500).json({
                 message: error instanceof Error ? error.message : "*Internal server error", success: true,
+            });
+        }
+    },
+    joinLiveChat: async (req: Request, res: Response) => {
+        try {
+            const _id = req._id;
+            const { id } = req.params;
+            const io = req.app.get("socketio");
+
+            const chat = await Chat.findById(id);
+            if (!chat) return res.status(404).json({ success: false, message: "Chat not found." });
+
+            if (chat.status === ChatStatus.RESOLVED) {
+                return res.status(400).json({ success: false, message: "Chat is already resolved." });
+            }
+
+            // Check if another subadmin is already active
+            if (chat.activeSubAdmin && chat.activeSubAdmin.toString() !== _id) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Another subadmin is currently handling this chat.",
+                });
+            }
+
+            // Lock the chat to this subadmin
+            chat.activeSubAdmin = new mongoose.Types.ObjectId(_id);
+            chat.status = ChatStatus.ACTIVE;
+            await chat.save();
+
+            const populatedChat = await Chat.findById(chat._id)
+                .populate(getChatPopulate({ withAdmin: true, withUser: true, withMessages: true }));
+
+            io.to(chat._id.toString()).emit("subadmin_joined", { chatId: chat._id, subAdminId: _id });
+            io.emit("chat_updated", populatedChat);
+
+            res.status(200).json({
+                success: true, message: "Successfully joined the chat.", chat: populatedChat,
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: error instanceof Error ? error.message : "*Internal server error", success: false,
+            });
+        }
+    },
+    leaveLiveChat: async (req: Request, res: Response) => {
+        try {
+            const _id = req._id;
+            const { id } = req.params;
+            const io = req.app.get("socketio");
+
+            const chat = await Chat.findById(id);
+            if (!chat) return res.status(404).json({ success: false, message: "Chat not found." });
+
+            // Only the active subadmin can leave
+            if (!chat.activeSubAdmin || chat.activeSubAdmin.toString() !== _id) {
+                return res.status(403).json({
+                    success: false, message: "You are not the active handler of this chat.",
+                });
+            }
+
+            // Unlock the chat
+            chat.activeSubAdmin = null;
+            chat.status = ChatStatus.PENDING;
+            await chat.save();
+
+            const populatedChat = await Chat.findById(chat._id)
+                .populate(getChatPopulate({ withAdmin: true, withUser: true, withMessages: true }));
+
+            io.to(chat._id.toString()).emit("subadmin_left", { chatId: chat._id, subAdminId: _id });
+            io.emit("chat_updated", populatedChat);
+
+            res.status(200).json({
+                success: true, message: "Successfully left the chat.", chat: populatedChat,
+            });
+        } catch (error) {
+            res.status(500).json({
+                message: error instanceof Error ? error.message : "*Internal server error", success: false,
             });
         }
     }

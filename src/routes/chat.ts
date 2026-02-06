@@ -22,6 +22,12 @@ router.route('/:id')
 router.route('/message')
     .patch(IsAuth.everyone, ChatController.markSeen)
 
+router.route('/:id/join')
+    .post(IsAuth.admins, ChatController.joinLiveChat)
+
+router.route('/:id/leave')
+    .post(IsAuth.admins, ChatController.leaveLiveChat)
+
 
 export default router
 

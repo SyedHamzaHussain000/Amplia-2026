@@ -159,9 +159,11 @@ export const ChatController = {
             });
 
             chat.messages.push(newMessage._id);
-            await chat.save();
 
-            const populatedMessage = await newMessage.populate(getMessagePopulate({ withSender: true }))
+            const [_, populatedMessage] = await Promise.all([
+                chat.save(),
+                newMessage.populate(getMessagePopulate({ withSender: true }))
+            ]);
 
             io.to(chat._id.toString()).emit("new_message", populatedMessage);
 

@@ -22,7 +22,7 @@ export const FileController = {
             const url = req.file.filename;
 
             // @ts-ignore
-            const uploadedBy = req.user?._id;
+            const uploadedBy = req._id;
 
             const newFile = await File.create({
                 name,
@@ -110,9 +110,9 @@ export const FileController = {
             if (year) filters.year = Number(year);
 
             // @ts-ignore
-            if (req.user?.role === "USER") {
+            if (req.role === "USER") {
                 // @ts-ignore
-                const userBookings = await Booking.find({ user: req.user._id }).select('_id');
+                const userBookings = await Booking.find({ user: req._id }).select('_id');
                 const bookingIds = userBookings.map(b => b._id);
                 // User sees files linked to their bookings
                 filters.booking = { $in: bookingIds };

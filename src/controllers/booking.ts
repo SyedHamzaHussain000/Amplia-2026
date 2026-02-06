@@ -54,9 +54,9 @@ export const BookingController = {
             if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
             // @ts-ignore
-            if (req.user?.role === "subAdmin") {
+            if (req.role === "subAdmin") {
                 // @ts-ignore
-                const subAdminId = req.user._id.toString();
+                const subAdminId = req._id.toString();
                 const assignedId = booking.assignedTo?.toString();
                 if (assignedId !== subAdminId) {
                     return res.status(403).json({ success: false, message: "You can only update bookings assigned to you." });

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { File } from "../models/file";
 import { Booking } from "../models/booking";
 import { IFile } from "../types";
+import { UserRole } from "../constants/roles";
 
 export const FileController = {
     add: async (req: Request, res: Response) => {
@@ -110,12 +111,22 @@ export const FileController = {
             if (year) filters.year = Number(year);
 
             // @ts-ignore
-            if (req.role === "USER") {
+            if (req.role === UserRole.USER) {
                 // @ts-ignore
                 const userBookings = await Booking.find({ user: req._id }).select('_id');
-                const bookingIds = userBookings.map(b => b._id);
-                // User sees files linked to their bookings
-                filters.booking = { $in: bookingIds };
+                const userBookingIds = userBookings.map(b => b._id.toString());
+
+                if (bookingId) {
+                    // If user requested a specific booking, verify ownership
+                    if (userBookingIds.includes(bookingId.toString())) {
+                        filters.booking = bookingId;
+                    } else {
+                        return res.status(403).json({ success: false, message: "Access denied to this booking's files." });
+                    }
+                } else {
+                    // User sees files linked to all their bookings
+                    filters.booking = { $in: userBookingIds };
+                }
             } else {
                 if (bookingId) filters.booking = bookingId;
             }

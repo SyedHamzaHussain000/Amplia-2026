@@ -15,6 +15,10 @@ export const getChatPopulate = (options?: IGetChatPopulate) => {
         populate.push({ path: 'resolvedBy', select: '_id firstName lastName profile role' });
     }
 
+    if (options?.withActiveSubAdmin) {
+        populate.push({ path: 'activeSubAdmin', select: '_id firstName lastName profile role' });
+    }
+
     if (options?.withMessages) {
         populate.push({
             path: 'messages',

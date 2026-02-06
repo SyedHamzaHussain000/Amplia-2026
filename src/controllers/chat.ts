@@ -18,7 +18,7 @@ export const ChatController = {
             if (bookingId) {
                 let chat = await Chat.findOne({
                     booking: bookingId
-                }).populate(getChatPopulate({ withUser: true, withAdmin: true, withMessages: true }));
+                }).populate(getChatPopulate({ withUser: true, withAdmin: true, withMessages: true, withActiveSubAdmin: true }));
 
                 if (chat) {
                     return res.status(200).json({
@@ -32,7 +32,7 @@ export const ChatController = {
                     user: _id,
                     booking: null,
                     status: { $in: [ChatStatus.PENDING, ChatStatus.ACTIVE] }
-                }).populate(getChatPopulate({ withUser: true, withAdmin: true, withMessages: true }))
+                }).populate(getChatPopulate({ withUser: true, withAdmin: true, withMessages: true, withActiveSubAdmin: true }))
 
                 if (chat) {
                     return res.status(200).json({
@@ -52,7 +52,7 @@ export const ChatController = {
                 messages: [],
             });
 
-            const populatedChat = await Chat.findById(createdChat._id).populate(getChatPopulate({ withUser: true, withAdmin: true }));
+            const populatedChat = await Chat.findById(createdChat._id).populate(getChatPopulate({ withUser: true, withAdmin: true, withActiveSubAdmin: true }));
 
             if (!populatedChat) {
                 return res.status(500).json({
@@ -232,7 +232,7 @@ export const ChatController = {
 
             if (id) {
                 const chat = await Chat.findById(id)
-                    .populate(getChatPopulate({ withAdmin: true, withUser: true, withMessages: true, withResolved: true }));
+                    .populate(getChatPopulate({ withAdmin: true, withUser: true, withMessages: true, withResolved: true, withActiveSubAdmin: true }));
 
                 if (!chat) return res.status(404).json({ success: false, message: "Chat not found." });
 
@@ -248,7 +248,7 @@ export const ChatController = {
 
             const chats = await Chat.find(filters)
                 .sort({ createdAt: -1 })
-                .populate(getChatPopulate({ withAdmin: true, withUser: true, withMessages: true, withResolved: true }));
+                .populate(getChatPopulate({ withAdmin: true, withUser: true, withMessages: true, withResolved: true, withActiveSubAdmin: true }));
 
             if (chats.length === 0) {
                 const message = status && status !== "all" ? `No chats found with status '${status}'.`
@@ -293,7 +293,7 @@ export const ChatController = {
             await chat.save();
 
             const populatedChat = await Chat.findById(chat._id)
-                .populate(getChatPopulate({ withAdmin: true, withUser: true, withMessages: true }));
+                .populate(getChatPopulate({ withAdmin: true, withUser: true, withMessages: true, withActiveSubAdmin: true }));
 
             io.to(chat._id.toString()).emit("subadmin_joined", { chatId: chat._id, subAdminId: _id });
             io.emit("chat_updated", populatedChat);
@@ -329,7 +329,7 @@ export const ChatController = {
             await chat.save();
 
             const populatedChat = await Chat.findById(chat._id)
-                .populate(getChatPopulate({ withAdmin: true, withUser: true, withMessages: true }));
+                .populate(getChatPopulate({ withAdmin: true, withUser: true, withMessages: true, withActiveSubAdmin: true }));
 
             io.to(chat._id.toString()).emit("subadmin_left", { chatId: chat._id, subAdminId: _id });
             io.emit("chat_updated", populatedChat);

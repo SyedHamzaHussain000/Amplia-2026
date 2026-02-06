@@ -22,6 +22,7 @@ export interface IGetChatPopulate {
   withAdmin?: boolean;
   withMessages?: boolean;
   withResolved?: boolean;
+  withActiveSubAdmin?: boolean;
 }
 
 export interface IGetMessagePopulate {

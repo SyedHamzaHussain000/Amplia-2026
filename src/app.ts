@@ -12,6 +12,7 @@ import fileRouter from "./routes/file"
 import chatRouter from "./routes/chat"
 import userRouter from "./routes/user"
 import settingsRouter from "./routes/settings"
+import taxCategoryRouter from "./routes/taxCategory"
 
 const app: Application = express();
 
@@ -31,5 +32,6 @@ app.use('/file', fileRouter)
 app.use('/chat', chatRouter)
 app.use('/user', userRouter)
 app.use('/settings', settingsRouter)
+app.use('/tax-category', taxCategoryRouter)
 
 export default app;

@@ -162,7 +162,10 @@ export const ServiceController = {
 
             const query: any = {};
             if (search && typeof search === "string") {
-                query.name = { $regex: search, $options: "i" };
+                query.$or = [
+                    { name: { $regex: search, $options: "i" } },
+                    { description: { $regex: search, $options: "i" } }
+                ];
             }
             if (category && typeof category === "string") {
                 query.category = category;

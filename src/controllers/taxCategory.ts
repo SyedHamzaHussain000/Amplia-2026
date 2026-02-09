@@ -4,8 +4,8 @@ import { TaxCategory } from "../models/taxCategory";
 export const TaxCategoryController = {
     create: async (req: Request, res: Response) => {
         try {
-            const { name, year, rate, description } = req.body;
-            const category = await TaxCategory.create({ name, year, rate, description });
+            const { name, year, rate, description, taxType, filerStatus } = req.body;
+            const category = await TaxCategory.create({ name, year, rate, description, taxType, filerStatus });
             res.status(201).json({ success: true, data: category });
         } catch (error) {
             res.status(500).json({ success: false, message: error instanceof Error ? error.message : "Server error" });
@@ -14,8 +14,12 @@ export const TaxCategoryController = {
 
     getAll: async (req: Request, res: Response) => {
         try {
-            const { year } = req.query;
-            const filter = year ? { year: Number(year) } : {};
+            const { year, taxType, filerStatus } = req.query;
+            const filter: any = {};
+            if (year) filter.year = Number(year);
+            if (taxType) filter.taxType = taxType;
+            if (filerStatus) filter.filerStatus = filerStatus;
+
             const categories = await TaxCategory.find(filter).sort({ year: -1, name: 1 });
             res.status(200).json({ success: true, data: categories });
         } catch (error) {

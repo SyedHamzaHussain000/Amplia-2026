@@ -4,8 +4,8 @@ import { TaxCategory } from "../models/taxCategory";
 export const TaxCategoryController = {
     create: async (req: Request, res: Response) => {
         try {
-            const { name, year, rate, description, taxType, filerStatus } = req.body;
-            const category = await TaxCategory.create({ name, year, rate, description, taxType, filerStatus });
+            const { name, year, rate, description, taxType, filerStatus, brackets } = req.body;
+            const category = await TaxCategory.create({ name, year, rate, description, taxType, filerStatus, brackets });
             res.status(201).json({ success: true, data: category });
         } catch (error) {
             res.status(500).json({ success: false, message: error instanceof Error ? error.message : "Server error" });
@@ -29,8 +29,7 @@ export const TaxCategoryController = {
 
     update: async (req: Request, res: Response) => {
         try {
-            const { id } = req.params;
-            const category = await TaxCategory.findByIdAndUpdate(id, req.body, { new: true });
+            const category = await TaxCategory.findByIdAndUpdate(req.params.id, req.body, { new: true });
             if (!category) return res.status(404).json({ success: false, message: "Category not found" });
             res.status(200).json({ success: true, data: category });
         } catch (error) {
@@ -55,16 +54,35 @@ export const TaxCategoryController = {
             const category = await TaxCategory.findById(categoryId);
             if (!category) return res.status(404).json({ success: false, message: "Category not found" });
 
-            const taxAmount = (Number(amount) * category.rate) / 100;
+            const monthlyIncome = Number(amount);
+            const annualIncome = monthlyIncome * 12;
+            let taxAmount = 0;
+
+            if (category.brackets && category.brackets.length > 0) {
+                // Progressive Tax Calculation
+                // Format: (annualIncome - min) * rate + base
+                const sortedBrackets = [...category.brackets].sort((a, b) => a.min - b.min);
+                const applicableBracket = sortedBrackets.reverse().find(b => annualIncome > b.min) || sortedBrackets[0];
+
+                if (applicableBracket) {
+                    const taxableAmount = annualIncome - (applicableBracket.min);
+                    const annualTax = (taxableAmount * applicableBracket.rate) / 100 + applicableBracket.base;
+                    taxAmount = annualTax / 12;
+                }
+            } else {
+                // Flat Rate Calculation
+                taxAmount = (monthlyIncome * category.rate) / 100;
+            }
+
             res.status(200).json({
                 success: true,
                 data: {
                     category: category.name,
                     year: category.year,
                     rate: category.rate,
-                    originalAmount: amount,
-                    taxAmount: taxAmount,
-                    totalAmount: Number(amount) + taxAmount
+                    originalAmount: monthlyIncome,
+                    taxAmount: Number(taxAmount.toFixed(2)),
+                    totalAmount: Number((monthlyIncome + taxAmount).toFixed(2))
                 }
             });
         } catch (error) {
